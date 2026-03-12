@@ -10,9 +10,9 @@ Linux X11 환경에서 키보드/마우스 입력을 **sudo 없이** 차단하�
 - 자동화 테스트 중 입력 간섭 방지
 
 ## 요구사항
-- Python 3.10+
+- Python 3.7+
 - X11 세션 (`echo $XDG_SESSION_TYPE` → `x11`)
-- `python-xlib`
+- `python-xlib` (외부 시스템 패키지 불필요 — `xinput` 명령 미사용)
 
 ```bash
 pip install python-xlib
