@@ -13,6 +13,8 @@ sudo 없이 차단합니다. X11 세션에서 동작합니다.
     python3 input_blocker.py --block keyboard mouse [--timeout 10]
 """
 
+from __future__ import annotations
+
 import argparse
 import signal
 import subprocess
