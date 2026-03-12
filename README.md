@@ -73,6 +73,77 @@ python3 input_blocker.py --block keyboard mouse --timeout 30
 | `--block keyboard\|mouse` | 지정 대상만 차단 (복수 지정 가능) |
 | `--timeout SECONDS` | 자동 해제 시간(초). 미지정 시 Ctrl+C까지 유지 |
 
+## 전역 설치 방법
+
+프로젝트 디렉토리를 클론한 후, 환경에 맞는 방법을 선택합니다.
+
+```bash
+git clone https://github.com/wntdev99/input-blocker
+cd input-blocker
+pip install python-xlib  # 의존성 설치
+```
+
+---
+
+### 방법 1 — pip 설치 (권장)
+
+pip 20.0 이상 환경에서 동작합니다.
+
+```bash
+pip install -e .
+```
+
+설치 후 어디서든 import 및 CLI 명령 사용 가능:
+
+```python
+from input_blocker import InputBlocker
+```
+
+```bash
+input-blocker --list
+```
+
+---
+
+### 방법 2 — PYTHONPATH (pip 없이, 영구 적용)
+
+pip가 없거나 시스템 pip가 손상된 환경에서 사용합니다.
+
+```bash
+echo 'export PYTHONPATH="/path/to/input-blocker:$PYTHONPATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
+### 방법 3 — .pth 파일 (root 환경 권장)
+
+root 계정이거나 pip가 완전히 동작하지 않는 환경에서 가장 안정적입니다.
+
+```bash
+echo "/path/to/input-blocker" > /usr/local/lib/python3.x/dist-packages/input_blocker.pth
+```
+
+`python3.x`는 실제 버전으로 치환합니다:
+
+```bash
+# 버전 확인
+python3 -c "import sys; print(sys.version)"
+
+# 예시 (Python 3.8)
+echo "/root/lib/input-blocker" > /usr/local/lib/python3.8/dist-packages/input_blocker.pth
+```
+
+---
+
+### 설치 확인
+
+```bash
+python3 -c "from input_blocker import InputBlocker; print('OK')"
+```
+
+---
+
 ## 동작 원리
 
 | 단계 | 내용 |
