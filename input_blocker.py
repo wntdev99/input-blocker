@@ -17,13 +17,13 @@ from __future__ import annotations
 
 import argparse
 import signal
-import subprocess
 import sys
 import time
 
 try:
     from Xlib import X, display as xdisplay
     from Xlib.error import DisplayConnectionError
+    from Xlib.ext import xinput as xi
 except ImportError:
     print("오류: python-xlib 라이브러리가 설치되어 있지 않습니다.")
     print("설치 명령: pip install python-xlib")
@@ -52,28 +52,32 @@ def open_display() -> tuple:
     return dpy, root
 
 
+_USE_LABEL = {
+    1: "MasterPointer",
+    2: "MasterKeyboard",
+    3: "SlavePointer",
+    4: "SlaveKeyboard",
+    5: "FloatingSlave",
+}
+
+
 def list_devices_info():
     """연결된 X11 입력장치 목록을 출력합니다."""
-    # xinput 명령으로 장치 목록 출력 (없으면 기본 안내)
+    dpy, _ = open_display()
+    print(f"{'ID':<5} {'유형':<20} {'이름'}")
+    print("-" * 60)
     try:
-        result = subprocess.run(
-            ["xinput", "list", "--short"],
-            capture_output=True, text=True, timeout=3
-        )
-        if result.returncode == 0:
-            print("[X11 입력장치 목록]")
-            print(result.stdout.rstrip())
-        else:
-            print("xinput 명령 실패:", result.stderr.strip())
-    except FileNotFoundError:
-        print("xinput을 찾을 수 없습니다. 설치: sudo apt install xinput")
-    except subprocess.TimeoutExpired:
-        print("xinput 명령 타임아웃")
+        info = dpy.xinput_query_device(xi.AllDevices)
+        for dev in sorted(info.devices, key=lambda d: d.deviceid):
+            label = _USE_LABEL.get(dev.use, f"use={dev.use}")
+            print(f"{dev.deviceid:<5} {label:<20} {dev.name}")
+    finally:
+        dpy.close()
 
     print()
     print("[차단 가능 대상]")
-    print("  keyboard  - X11 키보드 전체")
-    print("  mouse     - X11 포인터(마우스/터치패드) 전체")
+    print("  keyboard  - X11 키보드 전체 (MasterKeyboard)")
+    print("  mouse     - X11 포인터(마우스/터치패드) 전체 (MasterPointer)")
 
 
 def grab_keyboard(dpy, root) -> bool:
