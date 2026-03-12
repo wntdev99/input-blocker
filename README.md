@@ -1,0 +1,68 @@
+# input-blocker
+
+Linux X11 환경에서 키보드/마우스 입력을 **sudo 없이** 차단하는 Python 스크립트입니다.
+`XGrabKeyboard` / `XGrabPointer` X11 API를 사용하여 독점 점유 방식으로 이벤트를 차단합니다.
+
+## 활용 사례
+- 키오스크 모드 입력 잠금
+- 프레젠테이션 중 실수 입력 방지
+- 어린이 화면 잠금
+- 자동화 테스트 중 입력 간섭 방지
+
+## 요구사항
+- Python 3.10+
+- X11 세션 (`echo $XDG_SESSION_TYPE` → `x11`)
+- `python-xlib`
+
+```bash
+pip install python-xlib
+```
+
+## 사용법
+
+```bash
+# 연결된 입력장치 목록 확인
+python3 input_blocker.py --list
+
+# 키보드 + 마우스 전체 차단 (Ctrl+C로 해제)
+python3 input_blocker.py --block-all
+
+# 키보드만 5초 차단 후 자동 해제
+python3 input_blocker.py --block keyboard --timeout 5
+
+# 마우스만 차단
+python3 input_blocker.py --block mouse --timeout 10
+
+# 키보드 + 마우스 동시 차단
+python3 input_blocker.py --block keyboard mouse --timeout 30
+```
+
+## 옵션
+
+| 옵션 | 설명 |
+|------|------|
+| `--list` | X11 입력장치 목록 출력 |
+| `--block-all` | 키보드 + 마우스 전체 차단 |
+| `--block keyboard\|mouse` | 지정 대상만 차단 (복수 지정 가능) |
+| `--timeout SECONDS` | 자동 해제 시간(초). 미지정 시 Ctrl+C까지 유지 |
+
+## 동작 원리
+
+| 단계 | 내용 |
+|------|------|
+| 차단 | `XGrabKeyboard` / `XGrabPointer` 호출로 X11 루트 윈도우가 입력을 독점 점유 |
+| 이벤트 처리 | `event_mask=0` 으로 점유된 이벤트를 어느 윈도우에도 전달하지 않음 |
+| 해제 | `ungrab_keyboard` / `ungrab_pointer` 호출로 정상 복원 |
+
+> **참고**: sudo 또는 `input` 그룹 권한이 불필요합니다.
+> Wayland 세션은 지원하지 않습니다.
+
+## 테스트 방법
+
+```bash
+# 1. 터미널에서 5초 키보드 차단 실행
+python3 input_blocker.py --block keyboard --timeout 5
+
+# 2. 차단 중 다른 창에서 키 입력 시도 → 입력 안 됨
+# 3. 5초 후 자동 해제 → 정상 입력 복원
+```
