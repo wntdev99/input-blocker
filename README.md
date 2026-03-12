@@ -18,7 +18,34 @@ Linux X11 환경에서 키보드/마우스 입력을 **sudo 없이** 차단하�
 pip install python-xlib
 ```
 
-## 사용법
+## 라이브러리 사용법
+
+```python
+from input_blocker import InputBlocker
+
+# 직접 호출
+blocker = InputBlocker(keyboard=True, mouse=True)
+blocker.block()
+# ... 작업 ...
+blocker.unblock()
+
+# context manager (with 블록 종료 시 자동 해제)
+with InputBlocker(keyboard=True, timeout=5):
+    pass
+
+# 차단 상태 확인
+blocker = InputBlocker(keyboard=True)
+blocker.block()
+print(blocker.is_blocking)  # True
+blocker.unblock()
+
+# 연결된 장치 목록 조회
+devices = InputBlocker.list_devices()
+for d in devices:
+    print(d['id'], d['type'], d['name'])
+```
+
+## CLI 사용법
 
 ```bash
 # 연결된 입력장치 목록 확인
